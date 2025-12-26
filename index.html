@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Fuel Consumption Tracker - Monitor and analyze your vehicle's fuel efficiency">
+    <title>Fuel Consumption Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --light-bg: #ecf0f1;
+            --text-color: #2c3e50;
+            --border-color: #bdc3c7;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        main {
+            padding: 2rem 0;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="time"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        input[type="time"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background-color: var(--warning-color);
+        }
+
+        button.secondary:hover {
+            background-color: #e67e22;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-box.success {
+            background: linear-gradient(135deg, var(--success-color), #229954);
+        }
+
+        .stat-box.warning {
+            background: linear-gradient(135deg, var(--warning-color), #d68910);
+        }
+
+        .stat-box.danger {
+            background: linear-gradient(135deg, var(--accent-color), #c0392b);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .records-section {
+            grid-column: 1 / -1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        thead {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .delete-btn {
+            background-color: var(--accent-color);
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .no-records {
+            text-align: center;
+            padding: 2rem;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .chart-container {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .chart-placeholder {
+            background-color: var(--light-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            color: #95a5a6;
+            font-size: 0.95rem;
+        }
+
+        .success-message {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 200;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s ease;
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 1rem;
+        }
+
+        .modal-header h2 {
+            color: var(--primary-color);
+        }
+
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .close-btn:hover {
+            color: var(--text-color);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .stat-box {
+                padding: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>⛽ Fuel Consumption Tracker</h1>
+            <p>Monitor and analyze your vehicle's fuel efficiency</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Messages -->
+        <div id="successMessage" class="success-message"></div>
+        <div id="errorMessage" class="error-message"></div>
+
+        <!-- Dashboard Section -->
+        <div class="dashboard">
+            <!-- Statistics Cards -->
+            <div class="card">
+                <h2>📊 Statistics</h2>
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-box">
+                        <div class="stat-label">Total Records</div>
+                        <div class="stat-value" id="totalRecords">0</div>
+                    </div>
+                    <div class="stat-box success">
+                        <div class="stat-label">Avg MPG</div>
+                        <div class="stat-value" id="avgMpg">0</div>
+                    </div>
+                    <div class="stat-box warning">
+                        <div class="stat-label">Total Distance</div>
+                        <div class="stat-value" id="totalDistance">0</div>
+                    </div>
+                    <div class="stat-box danger">
+                        <div class="stat-label">Total Fuel</div>
+                        <div class="stat-value" id="totalFuel">0</div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-placeholder">📈 Efficiency Chart (Integration ready)</div>
+                </div>
+            </div>
+
+            <!-- Add New Record Form -->
+            <div class="card">
+                <h2>➕ Add Fuel Record</h2>
+                <form id="fuelForm">
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="time">Time</label>
+                        <input type="time" id="time" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="odometer">Odometer Reading (miles)</label>
+                        <input type="number" id="odometer" placeholder="e.g., 25500" step="0.1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fuelAmount">Fuel Amount (gallons)</label>
+                        <input type="number" id="fuelAmount" placeholder="e.g., 15.5" step="0.01" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fuelPrice">Fuel Price ($ per gallon)</label>
+                        <input type="number" id="fuelPrice" placeholder="e.g., 3.50" step="0.01" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">Fuel Station Location</label>
+                        <input type="text" id="location" placeholder="e.g., Shell - Main St">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" placeholder="Any additional notes..."></textarea>
+                    </div>
+
+                    <button type="submit">Add Record</button>
+                </form>
+            </div>
+
+            <!-- Fuel Records Table -->
+            <div class="card records-section">
+                <h2>📋 Fuel Records</h2>
+                <div id="tableContainer">
+                    <table id="recordsTable">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Odometer (mi)</th>
+                                <th>Fuel (gal)</th>
+                                <th>Price ($/gal)</th>
+                                <th>Cost ($)</th>
+                                <th>Distance (mi)</th>
+                                <th>Efficiency (MPG)</th>
+                                <th>Location</th>
+                                <th>Notes</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordsBody">
+                            <tr>
+                                <td colspan="10" class="no-records">No fuel records yet. Add your first record!</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Export Section -->
+        <div class="card">
+            <h2>🔍 Filters & Export</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                <div class="form-group">
+                    <label for="filterStartDate">Start Date</label>
+                    <input type="date" id="filterStartDate">
+                </div>
+                <div class="form-group">
+                    <label for="filterEndDate">End Date</label>
+                    <input type="date" id="filterEndDate">
+                </div>
+                <div class="form-group">
+                    <label for="filterLocation">Filter by Location</label>
+                    <input type="text" id="filterLocation" placeholder="Enter location...">
+                </div>
+            </div>
+            <div class="button-group">
+                <button id="filterBtn">Apply Filters</button>
+                <button id="resetBtn" class="secondary">Reset Filters</button>
+                <button id="exportBtn" class="secondary">Export to CSV</button>
+                <button id="clearAllBtn" class="secondary">Clear All Data</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+                <h2>Confirm Action</h2>
+            </div>
+            <p id="confirmMessage"></p>
+            <div class="button-group" style="margin-top: 1.5rem;">
+                <button id="confirmBtn">Confirm</button>
+                <button id="cancelBtn" class="secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Fuel Consumption Tracker. All rights reserved.</p>
+        <p>Version 1.0 | Track your vehicle's efficiency</p>
+    </footer>
+
+    <script>
+        // Data storage
+        let fuelRecords = JSON.parse(localStorage.getItem('fuelRecords')) || [];
+        let filteredRecords = [...fuelRecords];
+        let lastOdometer = 0;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setTodayDate();
+            updateStatistics();
+            renderRecords();
+            attachEventListeners();
+        });
+
+        // Set today's date as default
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+            
+            const now = new Date().toTimeString().split(' ')[0];
+            document.getElementById('time').value = now;
+        }
+
+        // Attach event listeners
+        function attachEventListeners() {
+            document.getElementById('fuelForm').addEventListener('submit', addRecord);
+            document.getElementById('filterBtn').addEventListener('click', applyFilters);
+            document.getElementById('resetBtn').addEventListener('click', resetFilters);
+            document.getElementById('exportBtn').addEventListener('click', exportToCSV);
+            document.getElementById('clearAllBtn').addEventListener('click', () => showConfirmation('Clear all fuel records?', clearAllData));
+        }
+
+        // Add new record
+        function addRecord(e) {
+            e.preventDefault();
+
+            const record = {
+                id: Date.now(),
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                odometer: parseFloat(document.getElementById('odometer').value),
+                fuelAmount: parseFloat(document.getElementById('fuelAmount').value),
+                fuelPrice: parseFloat(document.getElementById('fuelPrice').value),
+                location: document.getElementById('location').value,
+                notes: document.getElementById('notes').value
+            };
+
+            // Calculate distance and efficiency
+            if (lastOdometer > 0) {
+                record.distance = record.odometer - lastOdometer;
+                record.efficiency = (record.distance / record.fuelAmount).toFixed(2);
+            } else {
+                record.distance = 0;
+                record.efficiency = 0;
+            }
+
+            record.cost = (record.fuelAmount * record.fuelPrice).toFixed(2);
+
+            fuelRecords.push(record);
+            lastOdometer = record.odometer;
+
+            saveTolocalStorage();
+            showMessage('Fuel record added successfully!', 'success');
+            document.getElementById('fuelForm').reset();
+            setTodayDate();
+            updateStatistics();
+            renderRecords();
+        }
+
+        // Delete record
+        function deleteRecord(id) {
+            fuelRecords = fuelRecords.filter(record => record.id !== id);
+            saveTolocalStorage();
+            updateStatistics();
+            renderRecords();
+            showMessage('Record deleted successfully!', 'success');
+        }
+
+        // Render records table
+        function renderRecords() {
+            const tbody = document.getElementById('recordsBody');
+            
+            if (filteredRecords.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="no-records">No fuel records found.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredRecords.map(record => `
+                <tr>
+                    <td>${record.date} ${record.time}</td>
+                    <td>${record.odometer}</td>
+                    <td>${record.fuelAmount}</td>
+                    <td>$${record.fuelPrice.toFixed(2)}</td>
+                    <td>$${record.cost}</td>
+                    <td>${record.distance.toFixed(1)}</td>
+                    <td>${record.efficiency > 0 ? record.efficiency + ' MPG' : 'N/A'}</td>
+                    <td>${record.location}</td>
+                    <td>${record.notes}</td>
+                    <td><button class="delete-btn" onclick="deleteRecord(${record.id})">Delete</button></td>
+                </tr>
+            `).join('');
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const totalRecords = fuelRecords.length;
+            const totalDistance = fuelRecords.reduce((sum, r) => sum + r.distance, 0);
+            const totalFuel = fuelRecords.reduce((sum, r) => sum + r.fuelAmount, 0);
+            const avgMpg = totalFuel > 0 ? (totalDistance / totalFuel).toFixed(2) : 0;
+
+            document.getElementById('totalRecords').textContent = totalRecords;
+            document.getElementById('avgMpg').textContent = avgMpg + ' MPG';
+            document.getElementById('totalDistance').textContent = totalDistance.toFixed(1) + ' mi';
+            document.getElementById('totalFuel').textContent = totalFuel.toFixed(2) + ' gal';
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const startDate = document.getElementById('filterStartDate').value;
+            const endDate = document.getElementById('filterEndDate').value;
+            const location = document.getElementById('filterLocation').value.toLowerCase();
+
+            filteredRecords = fuelRecords.filter(record => {
+                let isValid = true;
+
+                if (startDate && record.date < startDate) isValid = false;
+                if (endDate && record.date > endDate) isValid = false;
+                if (location && !record.location.toLowerCase().includes(location)) isValid = false;
+
+                return isValid;
+            });
+
+            renderRecords();
+            showMessage(`Found ${filteredRecords.length} matching records.`, 'success');
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('filterStartDate').value = '';
+            document.getElementById('filterEndDate').value = '';
+            document.getElementById('filterLocation').value = '';
+            filteredRecords = [...fuelRecords];
+            renderRecords();
+            showMessage('Filters reset.', 'success');
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            if (fuelRecords.length === 0) {
+                showMessage('No records to export.', 'error');
+                return;
+            }
+
+            const headers = ['Date', 'Time', 'Odometer', 'Fuel (gal)', 'Price ($/gal)', 'Cost ($)', 'Distance (mi)', 'Efficiency (MPG)', 'Location', 'Notes'];
+            const rows = fuelRecords.map(r => [
+                r.date,
+                r.time,
+                r.odometer,
+                r.fuelAmount,
+                r.fuelPrice,
+                r.cost,
+                r.distance.toFixed(1),
+                r.efficiency,
+                r.location,
+                r.notes
+            ]);
+
+            let csvContent = 'data:text/csv;charset=utf-8,' + headers.join(',') + '\n';
+            csvContent += rows.map(row => row.join(',')).join('\n');
+
+            const link = document.createElement('a');
+            link.setAttribute('href', encodeURI(csvContent));
+            link.setAttribute('download', `fuel_records_${new Date().toISOString().split('T')[0]}.csv`);
+            link.click();
+
+            showMessage('Data exported successfully!', 'success');
+        }
+
+        // Clear all data
+        function clearAllData() {
+            fuelRecords = [];
+            filteredRecords = [];
+            lastOdometer = 0;
+            saveTolocalStorage();
+            updateStatistics();
+            renderRecords();
+            showMessage('All data cleared.', 'success');
+        }
+
+        // Utility functions
+        function saveTolocalStorage() {
+            localStorage.setItem('fuelRecords', JSON.stringify(fuelRecords));
+        }
+
+        function showMessage(message, type) {
+            const msgDiv = type === 'success' ? 
+                document.getElementById('successMessage') : 
+                document.getElementById('errorMessage');
+            
+            msgDiv.textContent = message;
+            msgDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                msgDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function showConfirmation(message, callback) {
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmModal').style.display = 'block';
+            
+            document.getElementById('confirmBtn').onclick = () => {
+                callback();
+                closeModal();
+            };
+            
+            document.getElementById('cancelBtn').onclick = closeModal;
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('confirmModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
